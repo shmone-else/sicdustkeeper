@@ -30,7 +30,8 @@ public class addXO implements EconomyTickListener {
         prev = null;
 
         Random rand = new Random();
-        if(rand.nextFloat() > .7f) return; // 70% chance to have XO in market each month
+        //if(rand.nextFloat() > .7f) return; // 70% chance to have XO in market each month
+
 
         // Make a random Dustkeeper
         PersonAPI person = market.getFaction().createRandomPerson(); // Random gender
