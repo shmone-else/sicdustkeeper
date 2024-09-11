@@ -1,0 +1,10 @@
+id,name,iconPath,npcSpawnWeight,plugin
+#Dustkeeper,,,,
+dustkeeper_specialized_construction,Specialized Construction,graphics/secondInCommand/dustkeeper/specialized.png,1.5,shmoneelse.sicdustkeeper.skills.dustkeeper.SpecializedConstruction
+dustkeeper_humanwarmind,Warmind Socialization,graphics/secondInCommand/dustkeeper/socialization.png,1,shmoneelse.sicdustkeeper.skills.dustkeeper.HumanWarmind
+dustkeeper_cyberwarfare_training,Cyberwarfare Training,graphics/secondInCommand/dustkeeper/cyberwarfare.png,2.5,shmoneelse.sicdustkeeper.skills.dustkeeper.CyberwarfareTraining
+dustkeeper_cooperation,Human-Warmind Cooperation,graphics/secondInCommand/dustkeeper/cooperation.png,0,shmoneelse.sicdustkeeper.skills.dustkeeper.WarmindCooperation
+dustkeeper_network,Network Depth,graphics/secondInCommand/dustkeeper/network.png,1,shmoneelse.sicdustkeeper.skills.dustkeeper.NetworkDepth
+dustkeeper_optimization,Focused Optimization,graphics/secondInCommand/dustkeeper/optimization.png,1,shmoneelse.sicdustkeeper.skills.dustkeeper.FocusedOptimization
+dustkeeper_ew,Electronic Warfare,graphics/secondInCommand/dustkeeper/ew.png,1,second_in_command.skills.automated.ElectronicWarfare
+dustkeeper_wide,Wide-Range Transmission,graphics/secondInCommand/dustkeeper/widerange.png,1.5,second_in_command.skills.automated.WideRangeTransmission

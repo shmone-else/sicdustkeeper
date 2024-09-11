@@ -1,0 +1,33 @@
+{
+    "id":"sicdustkeeper", # For the convenience of troubleshooters, include your name and the mod name, not just an acronym.
+	"name":"Second in Command Dustkeeper", # Displayed to the player
+	"author":"shmone-else",
+    "utility":"false",
+	"version":"1.0.0",
+	"description":"Adds a Dustkeeper-themed XO to Second in Command.",
+    "gameVersion": "0.97a-RC6",
+  	"jars":["jars/sicdustkeeper.jar"],
+  	"modPlugin":"shmoneelse.sicdustkeeper.sicdustkeeper",
+    "dependencies": [
+      {
+        "id": "lw_lazylib",
+        "name": "LazyLib"
+      },
+      {
+        "id": "MagicLib",
+        "name": "MagicLib"
+      },
+      {
+        "id": "lunalib",
+        "name": "LunaLib"
+      },
+      {
+        "id": "second_in_command",
+        "name": "Second in Command"
+      },
+      {
+        "id": "secretsofthefrontier",
+        "name": "Secrets of the Frontier"
+      }
+    ]
+}
