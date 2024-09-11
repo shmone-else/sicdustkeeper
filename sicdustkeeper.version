@@ -31,7 +31,7 @@
   "modVersion":
     {
       "major": 1,
-      "minor": 0,
+      "minor": 1,
       "patch": 0 # Can be a number, character or string (1, 2, a, b, "-RC2", etc)
     },
 
@@ -40,12 +40,12 @@
   # This is used to launch directly to the forum thread from in the game.
   # The ID is the set of digits at the end of the forum thread URL before the dot.
   # For example: fractalsoftworks.com/forum/index.php?topic=8181.0 has an ID of 8181
-  #"modThreadId": 0, # eg 8181
+  "modThreadId": 30636, # eg 8181
 
   # OPTIONAL
   # A download link directly to the latest version of your mod.
   # This is used by mod managers/version checkers (eg SMOL, MOSS, LunaLib) to let users quickly update/download without visiting your mod page.
-  #"directDownloadURL": "https://github.com/MagicLibStarsector/MagicLib/releases/download/1.0.0/MagicLib-1.0.0.zip",
+  "directDownloadURL": "https://github.com/shmone-else/sicdustkeeper/releases/latest/download/sicdustkeeper.zip",
 
   # OPTIONAL
   # A link to your changelog.
