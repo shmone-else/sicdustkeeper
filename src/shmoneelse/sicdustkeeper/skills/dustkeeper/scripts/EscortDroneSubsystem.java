@@ -1,30 +1,60 @@
 package shmoneelse.sicdustkeeper.skills.dustkeeper.scripts;
 
+import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.combat.ShipAPI;
 import com.fs.starfarer.api.combat.ViewportAPI;
+import com.fs.starfarer.combat.entities.Ship;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.util.vector.Vector2f;
-import org.magiclib.subsystems.drones.DroneFormation;
-import org.magiclib.subsystems.drones.HoveringFormation;
 import org.magiclib.subsystems.drones.MagicDroneSubsystem;
+import second_in_command.SCData;
+import second_in_command.specs.SCBaseSkillPlugin;
+import second_in_command.specs.SCOfficer;
+
+import java.util.List;
 
 public class EscortDroneSubsystem extends MagicDroneSubsystem {
     int numDrones = 0;
+    List<SCBaseSkillPlugin> activeSkills;
+    SCData d;
 
-    public EscortDroneSubsystem(ShipAPI ship) {
+
+    public EscortDroneSubsystem(ShipAPI ship, SCData data) {
         super(ship);
+        d = data;
 
-        if(!ship.isStationModule() && !ship.isFrigate() && !ship.isFighter()) {
-            if (ship.isDestroyer())
+        /*List<SCOfficer> activeOfficers = data.getActiveOfficers();
+        for(SCOfficer officer : activeOfficers)
+        {
+            if(officer != null && !officer.getActiveSkillPlugins().isEmpty())
+                activeSkills.addAll(officer.getActiveSkillPlugins()); // Populate all the effects we'll have to apply on spawning the drone
+        }*/
+        activeSkills = d.getAllActiveSkillsPlugins();
+
+        if(!ship.isStationModule() && !ship.isFighter()) {
+            if(ship.isFrigate())
                 numDrones = 1;
-            else if (ship.isCruiser())
-                numDrones = 2;
-            else if (ship.isCapital())
+            else if (ship.isDestroyer())
                 numDrones = 3;
+            else if (ship.isCruiser())
+                numDrones = 5;
+            else if (ship.isCapital())
+                numDrones = 7;
             else if (ship.isStation())
-                numDrones = 4;
+                numDrones = 9;
         }
         setDronesToSpawn(numDrones);
+    }
+
+    @Override
+    public @NotNull ShipAPI spawnDrone()
+    {
+        ShipAPI fighter = super.spawnDrone();
+        // Now, we need to apply the skills that should be applied. We know we're using SIC so we can just check those skill implementations.
+        // A similar technique could be used to get hullmod effects off the parent ship as well, in theory.
+        for(SCBaseSkillPlugin plugin : activeSkills)
+            plugin.applyEffectsToFighterSpawnedByShip(d, fighter, ship, plugin.getId());
+        return fighter;
     }
 
     @Override
@@ -88,13 +118,24 @@ public class EscortDroneSubsystem extends MagicDroneSubsystem {
     }
 
     @Override
+    public float  getDroneCreationTime() {
+        return 20f;
+    }
+
+    @Override
+    public boolean hasSeparateDroneCharges() {
+        return true;
+    }
+
+
+    @Override
     public boolean usesChargesOnActivate() {
         return false;
     }
 
     @Override
     public @NotNull String getDroneVariant() {
-        return "sotf_terminator_single";
+        return "sotf_brattice_single";
     }
 
     @Override

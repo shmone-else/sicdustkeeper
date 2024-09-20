@@ -22,15 +22,13 @@ public class EscortDrones extends SCBaseSkillPlugin{
 
     @Override
     public void addTooltip(SCData scData, TooltipMakerAPI tooltipMakerAPI) {
-        tooltipMakerAPI.addPara("Ships gain 0/1/2/3 escort Terminator Drones based on their hullsize", 0f, Misc.getHighlightColor(), Misc.getHighlightColor());
-        tooltipMakerAPI.addPara("Drones will not respawn if destroyed", 0f, Misc.getGrayColor(), Misc.getHighlightColor());
-
+        tooltipMakerAPI.addPara("Ships gain 1/3/5/7 escort Brattice Drones based on their hullsize", 0f, Misc.getHighlightColor(), Misc.getHighlightColor());
     }
 
     @Override
     public void applyEffectsAfterShipCreation(SCData data, ShipAPI ship, ShipVariantAPI variant, String id) {
         if(!Misc.isAutomated(ship)) return;
-        MagicSubsystemsManager.addSubsystemToShip(ship, new EscortDroneSubsystem(ship));
+        MagicSubsystemsManager.addSubsystemToShip(ship, new EscortDroneSubsystem(ship, data));
     }
 
 }
