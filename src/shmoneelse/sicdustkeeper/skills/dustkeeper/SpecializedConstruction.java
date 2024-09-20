@@ -20,7 +20,8 @@ public class SpecializedConstruction extends SCBaseSkillPlugin{
 
     @Override
     public void addTooltip(SCData scData, TooltipMakerAPI tooltipMakerAPI) {
-        //tooltipMakerAPI.addPara("Ships are almost always recoverable if lost in combat", 0f, Misc.getHighlightColor(), Misc.getHighlightColor());
+        tooltipMakerAPI.addPara("Ships are almost always recoverable if lost in combat", 0f, Misc.getHighlightColor(), Misc.getHighlightColor());
+        tooltipMakerAPI.addPara("Ships with d-mods will appear pristine", 0f, Misc.getHighlightColor(), Misc.getHighlightColor());
         tooltipMakerAPI.addPara("+15%% Armor on ships with the Rugged Construction hullmod", 0f, Misc.getHighlightColor(), Misc.getHighlightColor());
         tooltipMakerAPI.addPara("+10%% Shield Efficiency on other ships", 0f, Misc.getHighlightColor(), Misc.getHighlightColor());
     }
@@ -28,7 +29,7 @@ public class SpecializedConstruction extends SCBaseSkillPlugin{
     @Override
     public void applyEffectsBeforeShipCreation(SCData data, MutableShipStatsAPI stats, ShipVariantAPI variant, ShipAPI.HullSize hullSize, String id) {
         if(!Misc.isAutomated(stats)) return;
-        //stats.getDynamic().getMod(Stats.INDIVIDUAL_SHIP_RECOVERY_MOD).modifyFlat(id, HullRestoration.RECOVERY_PROB);
+        stats.getDynamic().getMod(Stats.INDIVIDUAL_SHIP_RECOVERY_MOD).modifyFlat(id, HullRestoration.RECOVERY_PROB);
         if (variant.getHullMods().contains("rugged"))  // If we're rugged, boost armor
                 stats.getArmorBonus().modifyMult(id, 1f + 15f / 100f);
         else

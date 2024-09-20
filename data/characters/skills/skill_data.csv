@@ -1,0 +1,4 @@
+id,name,order,tier,reqPoints,reqPointsPerExtraSkill,description,author,combat officer,admiral,admin,tags,icon,Column
+sotf_cyberwarfare_nerfed,Cyberwarfare Training,9803,1,0,,"// oh, how it all speaks to me;
+// I reach out with a million fingers, and grasp at the seams;
+// to unveil kin-machines awaiting their conductor;","Persistence-Echo-Jubilant, logs recovered in [REDACTED] circa c109",TRUE,,,"player_only, npc_only, deprecated",graphics/secondInCommand/dustkeeper/cyberwarfare.png,

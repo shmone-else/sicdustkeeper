@@ -18,19 +18,20 @@ public class AptitudeDustkeeper extends SCBaseAptitudePlugin {
     public void createSections() {
         SCAptitudeSection section1 = new SCAptitudeSection(true, 0, "technology1");
         section1.addSkill("dustkeeper_optimization");
-        section1.addSkill("sc_automated_electronic_warfare");
+        section1.addSkill("dustkeeper_ew");
         section1.addSkill("dustkeeper_specialized_construction");
         section1.addSkill("dustkeeper_cooperation");
         addSection(section1);
 
         SCAptitudeSection section2 = new SCAptitudeSection(true, 2, "technology3");
         section2.addSkill("dustkeeper_network");
-        section2.addSkill("sc_automated_deadly_persistence");
-        section2.addSkill("sc_automated_wide_range");
+        section2.addSkill("dustkeeper_deadly");
+        section2.addSkill("dustkeeper_wide");
         addSection(section2);
 
         SCAptitudeSection section3 = new SCAptitudeSection(false, 4, "technology4");
         section3.addSkill("dustkeeper_cyberwarfare_training");
+        section3.addSkill("dustkeeper_escort");
         addSection(section3);
 
     }

@@ -2,15 +2,9 @@ package shmoneelse.sicdustkeeper.skills.dustkeeper;
 
 
 import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.campaign.AICoreOfficerPlugin;
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
-import com.fs.starfarer.api.campaign.CargoAPI;
-import com.fs.starfarer.api.campaign.FleetDataAPI;
-import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.characters.MutableCharacterStatsAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
-import com.fs.starfarer.api.impl.campaign.OfficerLevelupPluginImpl;
-import com.fs.starfarer.api.impl.campaign.ids.Submarkets;
 import com.fs.starfarer.api.plugins.OfficerLevelupPlugin;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
@@ -27,9 +21,21 @@ public class CyberwarfareTraining extends SCBaseSkillPlugin{
         return "all AI cores";
     }
 
+    /*@Override
+    public void applyEffectsAfterShipCreation(SCData data, ShipAPI ship, ShipVariantAPI variant, String id) { // Adds listener for our version of Cyberwarfare
+        if (ship.getCaptain() == null) return;
+        if (!ship.getCaptain().isAICore()) return;
+        if (ship.getCaptain().getStats() == null) return;
+        if (ship.getCaptain().getStats().hasSkill("sotf_cyberwarfare")) return; // Don't do anything if they already have the skill, that's covered under advance
+        if (ship.isFighter()) return;
+        if (ship.isStationModule()) return; // Doesn't apply to submodules or fighters either.
+
+        ship.addListener(new SotfCyberwarfareNerfed.SotfCyberwarfareShipHackScriptNerfed(ship));
+    } */
+
     @Override
     public void addTooltip(SCData scData, TooltipMakerAPI tooltipMakerAPI) {
-        tooltipMakerAPI.addPara("Teaches AI cores of level 5 or higher the Cyberwarfare Protocols skill", 0f, Misc.getHighlightColor(), Misc.getHighlightColor());
+        tooltipMakerAPI.addPara("Grants AI cores an inferior version of the Cyberwarfare Protocols skill", 0f, Misc.getHighlightColor(), Misc.getHighlightColor());
         tooltipMakerAPI.addPara("Increases the level of AI cores that already have Cyberwarfare Protocols by 1", 0f, Misc.getHighlightColor(), Misc.getHighlightColor());
         tooltipMakerAPI.addPara("   - If this officer is unassigned, the level is reduced back to the default and the skill is unlearned", 0f, Misc.getTextColor(), Misc.getHighlightColor());
         tooltipMakerAPI.addPara("   - If the core has more skills than possible at that level, it removes them automatically.", 0f, Misc.getTextColor(), Misc.getHighlightColor());
@@ -47,19 +53,20 @@ public class CyberwarfareTraining extends SCBaseSkillPlugin{
         for (FleetMemberAPI member : fleetList) {
             if(member.getCaptain() == null) continue;
             if(!member.getCaptain().isAICore()) continue;
-            if(member.getCaptain().getMemoryWithoutUpdate().getBoolean("$CyberwarfareTrainingLevel") || member.getCaptain().getMemoryWithoutUpdate().getBoolean("$CyberwarfareTrainingSkill")) continue;
+            if(member.getCaptain().getMemoryWithoutUpdate().getBoolean("$CyberwarfareTraining")) continue;
 
             if(member.getCaptain().getStats().hasSkill("sotf_cyberwarfare"))
             {
                 member.getCaptain().getStats().setLevel(member.getCaptain().getStats().getLevel()+1);
-                member.getCaptain().getMemoryWithoutUpdate().set("$CyberwarfareTrainingLevel", true);
             }
-            else if(member.getCaptain().getStats().getLevel() >= 5)
+            else
             {
                 member.getCaptain().getStats().setLevel(member.getCaptain().getStats().getLevel()+1); // Accomodate the bonus skill
-                member.getCaptain().getStats().setSkillLevel("sotf_cyberwarfare", 1f);
-                member.getCaptain().getMemoryWithoutUpdate().set("$CyberwarfareTrainingSkill", true);
+                member.getCaptain().getStats().setSkillLevel("sotf_cyberwarfare_nerfed", 1f);
             }
+
+            member.getCaptain().getMemoryWithoutUpdate().set("$CyberwarfareTraining", true);
+
         }
     }
 
@@ -75,8 +82,10 @@ public class CyberwarfareTraining extends SCBaseSkillPlugin{
 
                 fleet.getCaptain().addTag("cyberwarfare_update");
 
-                if(fleet.getCaptain().getStats().getLevel() >= 5)
-                    fleet.getCaptain().getStats().setSkillLevel("sotf_cyberwarfare", 1f);
+                if(fleet.getCaptain().getStats().hasSkill("sotf_cyberwarfare"))
+                    ; // Currently not implemented, should fix... eventually...
+                else
+                    fleet.getCaptain().getStats().setSkillLevel("sotf_cyberwarfare_nerfed", 1f);
             }
         }
     }
@@ -93,19 +102,19 @@ public class CyberwarfareTraining extends SCBaseSkillPlugin{
             if(member.getCaptain() == null) continue;
             if(!member.getCaptain().isAICore()) continue;
 
-            if(!member.getCaptain().getMemoryWithoutUpdate().getBoolean("$CyberwarfareTrainingLevel") && !member.getCaptain().getMemoryWithoutUpdate().getBoolean("$CyberwarfareTrainingSkill")) continue;
+            if(!member.getCaptain().getMemoryWithoutUpdate().getBoolean("$CyberwarfareTraining")) continue;
 
-            if(member.getCaptain().getMemoryWithoutUpdate().getBoolean("$CyberwarfareTrainingLevel"))
+            if(member.getCaptain().getStats().hasSkill("sotf_cyberwarfare"))
             {
                 member.getCaptain().getStats().setLevel(member.getCaptain().getStats().getLevel()-1);
-                member.getCaptain().getMemoryWithoutUpdate().set("$CyberwarfareTrainingLevel", false);
             }
             else
             {
-                member.getCaptain().getStats().setSkillLevel("sotf_cyberwarfare", 0f);
+                member.getCaptain().getStats().setSkillLevel("sotf_cyberwarfare_nerfed", 0f);
                 member.getCaptain().getStats().setLevel(member.getCaptain().getStats().getLevel()-1);
-                member.getCaptain().getMemoryWithoutUpdate().set("$CyberwarfareTrainingSkill", false);
             }
+
+            member.getCaptain().getMemoryWithoutUpdate().set("$CyberwarfareTraining", false);
 
             List<MutableCharacterStatsAPI.SkillLevelAPI> skills = member.getCaptain().getStats().getSkillsCopy();
             for(MutableCharacterStatsAPI.SkillLevelAPI skill : new ArrayList<>(skills))
