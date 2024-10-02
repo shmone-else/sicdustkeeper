@@ -47,9 +47,15 @@ public class NetworkDepth  extends SCBaseSkillPlugin {
 
         if(!stats.getFleetMember().getCaptain().isAICore()) return;
 
-        float mult = 1f / stats.getFleetMember().getCaptain().getMemoryWithoutUpdate().getFloat(AICoreOfficerPlugin.AUTOMATED_POINTS_MULT);
-        float dpmult = stats.getFleetMember().getCaptain().getMemoryWithoutUpdate().getFloat(AICoreOfficerPlugin.AUTOMATED_POINTS_MULT) - 1f; // Remove the base cost
-        dpmult *= 6f;
+        float getmult = stats.getFleetMember().getCaptain().getMemoryWithoutUpdate().getFloat(AICoreOfficerPlugin.AUTOMATED_POINTS_MULT);
+        float mult = 1f; // Default values if we're under 1 for an AI multiplier - no change
+        float dpmult = 0f;
+        if(getmult >= 1f) { // Correcting for an issue with Adaptive Tactical Cores
+            // They have a mult of 0f, and 1f / 0f means you start getting near floatmax due to how floating points work. This just sanity checks that the AI mult is non-zero.
+            mult = 1f / stats.getFleetMember().getCaptain().getMemoryWithoutUpdate().getFloat(AICoreOfficerPlugin.AUTOMATED_POINTS_MULT);
+            dpmult = stats.getFleetMember().getCaptain().getMemoryWithoutUpdate().getFloat(AICoreOfficerPlugin.AUTOMATED_POINTS_MULT) - 1f; // Remove the base cost
+            dpmult *= 6f;
+        }
 
         stats.getDynamic().getStat("sc_auto_points_mult").modifyMult("network_depth", mult);
         stats.getDynamic().getMod(Stats.DEPLOYMENT_POINTS_MOD).modifyPercent(id, dpmult);

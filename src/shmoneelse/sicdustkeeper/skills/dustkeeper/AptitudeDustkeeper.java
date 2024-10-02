@@ -39,6 +39,8 @@ public class AptitudeDustkeeper extends SCBaseAptitudePlugin {
     @Override
     public Float getNPCFleetSpawnWeight(SCData scData, CampaignFleetAPI campaignFleetAPI) {
         if(Objects.equals(campaignFleetAPI.getFaction().getId(), "sotf_dustkeepers")) return Float.MAX_VALUE;
+        if(Objects.equals(campaignFleetAPI.getFaction().getId(), "sotf_dustkeepers_burnouts")) return Float.MAX_VALUE;
+        if(Objects.equals(campaignFleetAPI.getFaction().getId(), "sotf_dustkeepers_proxies")) return Float.MAX_VALUE;
         return 0f;
     }
 }
