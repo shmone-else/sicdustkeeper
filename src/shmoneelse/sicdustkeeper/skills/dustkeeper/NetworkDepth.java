@@ -4,6 +4,7 @@ import com.fs.starfarer.api.campaign.AICoreOfficerPlugin;
 import com.fs.starfarer.api.campaign.FleetDataAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Stats;
+import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.ui.LabelAPI;
 import com.fs.starfarer.campaign.fleet.FleetMember;
 import second_in_command.specs.SCBaseSkillPlugin;
@@ -41,6 +42,7 @@ public class NetworkDepth  extends SCBaseSkillPlugin {
     @Override
     public void applyEffectsBeforeShipCreation(SCData data, MutableShipStatsAPI stats, ShipVariantAPI variant, ShipAPI.HullSize hullSize, String id) {
         if(!Misc.isAutomated(stats)) return;
+        if(variant.getHullSpec().hasTag(Tags.TAG_AUTOMATED_NO_PENALTY)) return;
 
         if(stats.getFleetMember() == null) return;
         if(stats.getFleetMember().getCaptain() == null) return;
