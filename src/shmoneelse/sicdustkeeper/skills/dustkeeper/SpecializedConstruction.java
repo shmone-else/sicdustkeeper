@@ -21,9 +21,9 @@ public class SpecializedConstruction extends SCBaseSkillPlugin{
     @Override
     public void addTooltip(SCData scData, TooltipMakerAPI tooltipMakerAPI) {
         tooltipMakerAPI.addPara("Ships are almost always recoverable if lost in combat", 0f, Misc.getHighlightColor(), Misc.getHighlightColor());
-        tooltipMakerAPI.addPara("Ships with d-mods will appear pristine", 0f, Misc.getHighlightColor(), Misc.getHighlightColor());
-        tooltipMakerAPI.addPara("+15%% Armor on ships with the Rugged Construction hullmod", 0f, Misc.getHighlightColor(), Misc.getHighlightColor());
-        tooltipMakerAPI.addPara("+10%% Shield Efficiency on other ships", 0f, Misc.getHighlightColor(), Misc.getHighlightColor());
+        //tooltipMakerAPI.addPara("Ships with d-mods will appear pristine", 0f, Misc.getHighlightColor(), Misc.getHighlightColor());
+        tooltipMakerAPI.addPara("+15%% armor on ships with the Rugged Construction hullmod", 0f, Misc.getHighlightColor(), Misc.getHighlightColor());
+        tooltipMakerAPI.addPara("-10%% damage taken by shields on ships", 0f, Misc.getHighlightColor(), Misc.getHighlightColor());
     }
 
     @Override
@@ -36,11 +36,11 @@ public class SpecializedConstruction extends SCBaseSkillPlugin{
             stats.getShieldDamageTakenMult().modifyMult(id, 1f - 10f / 100f); // Otherwise, boost shields
     }
 
-    @Override
+    /*@Override
     public void applyEffectsAfterShipCreation(SCData data, ShipAPI ship, ShipVariantAPI variant, String id) {
         if(!Misc.isAutomated(ship)) return;
         String sprite = Global.getSettings().getSpriteName("damage","dmod_overlay_none");
         ship.setDHullOverlay(sprite);
-    }
+    }*/
 
 }

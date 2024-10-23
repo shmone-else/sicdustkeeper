@@ -27,8 +27,8 @@ public class WarmindCooperation extends SCBaseSkillPlugin{
         tooltipMakerAPI.addPara("Provides bonuses which scale with surplus crew", 0f, Misc.getHighlightColor(), Misc.getHighlightColor());
 
         tooltipMakerAPI.addPara("   - Up to %s ship repair rate out of combat", 0f, Misc.getTextColor(), Misc.getHighlightColor(), "+50%");
-        tooltipMakerAPI.addPara("   - Ships with the %s hullmod lost in combat are up to %s more likely to acquire d-mods", 0f, Misc.getTextColor(), Misc.getHighlightColor(), "Rugged Construction", "+300%");
-        tooltipMakerAPI.addPara("   - Other ships lost in combat are up to %s less likely to acquire d-mods", 0f, Misc.getTextColor(), Misc.getHighlightColor(), "66%");
+        tooltipMakerAPI.addPara("   - Ships without the %s hullmod lost in combat are up to %s less likely to acquire d-mods", 0f, Misc.getTextColor(), Misc.getHighlightColor(), "Rugged Construction", "66%");
+        //tooltipMakerAPI.addPara("   - Other ships lost in combat are up to %s less likely to acquire d-mods", 0f, Misc.getTextColor(), Misc.getHighlightColor(), "66%");
         tooltipMakerAPI.addPara("   - Bonuses scale linearly with surplus crew up to their maximum value at %s crew", 0f, Misc.getTextColor(), Misc.getHighlightColor(), "3000");
     }
 
@@ -59,10 +59,13 @@ public class WarmindCooperation extends SCBaseSkillPlugin{
         stats.getRepairRatePercentPerDay().modifyPercent(id, rBonus);
         stats.getBaseCRRecoveryRatePercentPerDay().modifyPercent(id, rBonus);
 
-        if (variant.getHullMods().contains("rugged"))  // If we're rugged, increase dmod chance
+        /*if (variant.getHullMods().contains("rugged"))  // If we're rugged, increase dmod chance
             stats.getDynamic().getMod(Stats.DMOD_ACQUIRE_PROB_MOD).modifyMult(id, rDMod);
         else // Otherwise, decrease it
+            stats.getDynamic().getMod(Stats.DMOD_ACQUIRE_PROB_MOD).modifyMult(id, oDMod);*/
+        if (!variant.getHullMods().contains("rugged"))
             stats.getDynamic().getMod(Stats.DMOD_ACQUIRE_PROB_MOD).modifyMult(id, oDMod);
+
     }
 
 }
