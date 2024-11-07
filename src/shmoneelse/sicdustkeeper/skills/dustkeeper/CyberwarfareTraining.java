@@ -39,6 +39,7 @@ public class CyberwarfareTraining extends SCBaseSkillPlugin{
         tooltipMakerAPI.addPara("Increases the level of AI cores that already have Cyberwarfare Protocols by 1", 0f, Misc.getHighlightColor(), Misc.getHighlightColor());
         tooltipMakerAPI.addPara("   - If this officer is unassigned, the level is reduced back to the default and the skill is unlearned", 0f, Misc.getTextColor(), Misc.getHighlightColor());
         tooltipMakerAPI.addPara("   - If the core has more skills than possible at that level, it removes them automatically.", 0f, Misc.getTextColor(), Misc.getHighlightColor());
+        tooltipMakerAPI.addSpacer(10f);
         tooltipMakerAPI.addPara("* The Cyberwarfare Training skill has reduced chance intrusion effectiveness and a longer cooldown than normal", 0f, Misc.getGrayColor(), Misc.getHighlightColor());
 
     }

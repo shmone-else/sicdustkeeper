@@ -32,29 +32,32 @@ public class WarmindCooperation extends SCBaseSkillPlugin{
         tooltipMakerAPI.addPara("   - Bonuses scale linearly with surplus crew up to their maximum value at %s crew", 0f, Misc.getTextColor(), Misc.getHighlightColor(), "3000");
     }
 
+    private float getEffectStrength() {
+        float effectStrength = 0f;
+
+        if(Global.getSector() == null) return effectStrength;
+        if(Global.getSector().getPlayerFleet() == null) return effectStrength;
+        if(Global.getSector().getPlayerFleet().getCargo() == null) return effectStrength;
+        if(Global.getSector().getPlayerFleet().getFleetData() == null) return effectStrength; // Everyone loves null checks
+
+        float crewSurplus = Global.getSector().getPlayerFleet().getCargo().getCrew() - Global.getSector().getPlayerFleet().getFleetData().getMinCrew();
+
+        if(crewSurplus <= 0) return effectStrength; // If we're understrength the rest of the effects don't fire
+        else if(crewSurplus <= 3000) effectStrength = crewSurplus / 3000f;
+        else effectStrength = 1.0f; // Stops scaling at 3000 crew surplus
+
+        return effectStrength;
+    }
+
 
     @Override
     public void applyEffectsBeforeShipCreation(SCData data, MutableShipStatsAPI stats, ShipVariantAPI variant, ShipAPI.HullSize hullSize, String id) {
         if(!Misc.isAutomated(stats)) return;
 
-        if(Global.getSector() == null) return;
-        if(Global.getSector().getPlayerFleet() == null) return;
-        if(Global.getSector().getPlayerFleet().getCargo() == null) return;
-        if(Global.getSector().getPlayerFleet().getFleetData() == null) return; // Everyone loves null checks
-
         stats.getDynamic().getMod(Stats.INDIVIDUAL_SHIP_RECOVERY_MOD).modifyFlat(id, HullRestoration.RECOVERY_PROB);
 
-        float crewSurplus = Global.getSector().getPlayerFleet().getCargo().getCrew() - Global.getSector().getPlayerFleet().getFleetData().getMinCrew();
-        float effectStrength;
-
-        if(crewSurplus <= 0) return; // If we're understrength the rest of the effects don't fire
-        else if(crewSurplus <= 3000) effectStrength = crewSurplus / 3000f;
-        else effectStrength = 1.0f; // Stops scaling at 3000 crew surplus
-
-
+        float effectStrength = getEffectStrength();
         float rBonus = 50f * effectStrength; // Max 50%
-        float rDMod = 1f + effectStrength * 2f; // max 3
-        float oDMod = 1f - effectStrength * .66f; // max .33
 
         stats.getRepairRatePercentPerDay().modifyPercent(id, rBonus);
         stats.getBaseCRRecoveryRatePercentPerDay().modifyPercent(id, rBonus);
@@ -63,9 +66,18 @@ public class WarmindCooperation extends SCBaseSkillPlugin{
             stats.getDynamic().getMod(Stats.DMOD_ACQUIRE_PROB_MOD).modifyMult(id, rDMod);
         else // Otherwise, decrease it
             stats.getDynamic().getMod(Stats.DMOD_ACQUIRE_PROB_MOD).modifyMult(id, oDMod);*/
-        if (!variant.getHullMods().contains("rugged"))
-            stats.getDynamic().getMod(Stats.DMOD_ACQUIRE_PROB_MOD).modifyMult(id, oDMod);
-
+        /*if (!variant.getHullMods().contains("rugged"))
+            stats.getDynamic().getMod(Stats.DMOD_ACQUIRE_PROB_MOD).modifyMult(id, oDMod);*/
     }
 
+    @Override
+    public void callEffectsFromSeparateSkill(MutableShipStatsAPI stats, ShipAPI.HullSize hullSize, String id) {
+        if(!Misc.isAutomated(stats)) return;
+        if (stats.getVariant().getHullMods().contains("rugged")) return;
+
+        float effectStrength = getEffectStrength();
+
+        float oDMod = 1f - effectStrength * .66f; // max .33
+        stats.getDynamic().getMod(Stats.DMOD_ACQUIRE_PROB_MOD).modifyMult(id, oDMod);
+    }
 }

@@ -31,7 +31,8 @@ public class RapidPursuit extends SCBaseSkillPlugin {
         if(hullSize == HullSize.FRIGATE) val = 40f;
         else if(hullSize == HullSize.DESTROYER) val = 40f;
         else if(hullSize == HullSize.CRUISER) val = 30f;
-        else if(hullSize == HullSize.CAPITAL_SHIP) val = 20f;
+        //else if(hullSize == HullSize.CAPITAL_SHIP) val = 20f; # Redundant
+        
         stats.getZeroFluxSpeedBoost().modifyPercent(id, val);
 
         stats.getZeroFluxMinimumFluxLevel().modifyFlat(id, 0.1f);

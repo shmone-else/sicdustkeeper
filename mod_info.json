@@ -3,7 +3,7 @@
 	"name":"Second in Command Dustkeeper", # Displayed to the player
 	"author":"shmone-else",
     "utility":"false",
-	"version":"1.4.0",
+	"version":"1.4.1",
 	"description":"Adds a Dustkeeper-themed XO to Second in Command.",
     "gameVersion": "0.97a-RC11",
   	"jars":["jars/sicdustkeeper.jar"],

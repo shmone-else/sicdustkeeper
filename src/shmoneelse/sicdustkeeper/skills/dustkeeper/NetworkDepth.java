@@ -31,11 +31,12 @@ public class NetworkDepth  extends SCBaseSkillPlugin {
     public void addTooltip(SCData scData, TooltipMakerAPI tooltip) {
         tooltip.addPara("AI cores no longer give ships a multiplier to their automated ship point cost", 0f,Misc.getHighlightColor(),Misc.getHighlightColor());
         tooltip.addPara("AI cores increase the deployment cost of ships they are installed into", 0f, Misc.getNegativeHighlightColor(), Misc.getNegativeHighlightColor());
+        tooltip.addSpacer(10f);
         tooltip.addPara("" +
                         "The increase in deployment points depends on the installed AI cores - " +
                         "%s for an Alpha Core, " +
                         "%s for an Beta Core, " +
-                        "%s for a Gamma Core. ", 0f,
+                        "%s for a Gamma Core. Does not apply to automated ships that do not require the automated ships skill.", 0f,
                 Misc.getGrayColor(), Misc.getHighlightColor(), "18%", "12%", "6%");
     }
 

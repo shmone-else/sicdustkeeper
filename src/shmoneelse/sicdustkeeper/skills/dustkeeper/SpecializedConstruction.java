@@ -23,7 +23,7 @@ public class SpecializedConstruction extends SCBaseSkillPlugin{
         tooltipMakerAPI.addPara("Ships are almost always recoverable if lost in combat", 0f, Misc.getHighlightColor(), Misc.getHighlightColor());
         //tooltipMakerAPI.addPara("Ships with d-mods will appear pristine", 0f, Misc.getHighlightColor(), Misc.getHighlightColor());
         tooltipMakerAPI.addPara("+15%% armor on ships with the Rugged Construction hullmod", 0f, Misc.getHighlightColor(), Misc.getHighlightColor());
-        tooltipMakerAPI.addPara("-10%% damage taken by shields on ships", 0f, Misc.getHighlightColor(), Misc.getHighlightColor());
+        tooltipMakerAPI.addPara("-10%% damage taken by shields on other ships", 0f, Misc.getHighlightColor(), Misc.getHighlightColor());
     }
 
     @Override
