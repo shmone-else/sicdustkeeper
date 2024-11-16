@@ -34,14 +34,16 @@ import java.util.List;
 public class SotfCyberwarfareNerfed {
 
     public static float RANGE = 900f;
-    public static float HACK_COOLDOWN = 75f;
+    public static float HACK_COOLDOWN = 90f;
     public static float FIGHTER_HACK_COOLDOWN = 20f;
     public static float OVERRIDE_DURATION = 7.5f;
     public static float TSEQ_DAMAGE = 1.25f; // energy damage = fighter's max hull * this
 
     public static float BASE_ECM_RATING = 10f;
     //public static float CHANCE_PER_ECM_DIFF = 0.05f;
-    public static float ECM_PENALTY = 3f;
+
+    public static float ECM_PENALTY = 5f;
+
 
     // each deducts 1 point of ECM rating
     public static Set<String> VULNERABLE_DMODS = new HashSet<>();
@@ -152,7 +154,7 @@ public class SotfCyberwarfareNerfed {
     public static class SotfCyberwarfareShipHackScriptNerfed implements AdvanceableListener {
         protected ShipAPI ship;
         protected float checkTimer = 0f;
-        protected float internalCDTimer = HACK_COOLDOWN / 2f;
+        protected float internalCDTimer = HACK_COOLDOWN / 2;
         protected int timesHacked = 0;
 
         public float getHackRange() {

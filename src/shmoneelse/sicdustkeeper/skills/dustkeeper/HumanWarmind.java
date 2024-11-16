@@ -1,43 +1,73 @@
 package shmoneelse.sicdustkeeper.skills.dustkeeper;
 
 import com.fs.starfarer.api.Global;
+import com.fs.starfarer.api.characters.PersonAPI;
+import com.fs.starfarer.api.combat.ShipAPI;
+import com.fs.starfarer.api.combat.ShipVariantAPI;
+import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
+import org.jetbrains.annotations.NotNull;
+import org.lazywizard.console.Console;
 import second_in_command.SCData;
 import com.fs.starfarer.api.util.Misc;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+
+
 public class HumanWarmind extends DustkeeperBaseAutoPointsSkillPlugin { // Now called Warmind Socialization
+    private static final int MAX_POINTS = 175;
+    private static final int FRIGATE_VAL = 15;
+    private static final int DESTROYER_VAL = 25;
+    private static final int CRUISER_VAL = 35;
+    private static final int CAPITAL_VAL = 50;
 
-    @Override
-    public int getProvidedPoints() {
-        if(Global.getSector() == null) return 60;
-        if(Global.getSector().getPlayerFleet() == null) return 60;
-        if(Global.getSector().getPlayerFleet().getCargo() == null) return 60;
-        if(Global.getSector().getPlayerFleet().getFleetData() == null) return 60; // Everyone loves null checks
+    //private HashMap<ShipAPI, ShipAPI.HullSize> pointMap = new HashMap<ShipAPI, ShipAPI.HullSize>();
+    //private HashSet<ShipAPI> pointSet = new HashSet<ShipAPI>();
 
-        float crewSurplus = Global.getSector().getPlayerFleet().getCargo().getCrew() - Global.getSector().getPlayerFleet().getFleetData().getMinCrew();
+    private int calcProvidedPoints() {
+        if(Global.getSector() == null) return 0;
+        if(Global.getSector().getPlayerFleet() == null) return 0;
+        if(Global.getSector().getPlayerFleet().getFleetData() == null) return 0; // Everyone loves null checks
 
-        float retval = 60f;
-        if(crewSurplus <= 0)
-            ; // Do nothing, prevents negative adjustment
-        else if(crewSurplus <= 500)
-            retval += crewSurplus * .06f; // +30 points at 500 crew, scales linearly
-        else if(crewSurplus <= 1500)
-            retval += 30f + (crewSurplus - 500f) * .03f; // +60 points at 1500 crew, scaling factor doubles between 500-1500.
-        else if(crewSurplus <= 3000)
-            retval += 60f + (crewSurplus - 1500f) * .02f; // +90 points at 3000 crew, scaling factor increases again
-        else
-            retval += 90f;
+        List<FleetMemberAPI> fleet = Global.getSector().getPlayerFleet().getFleetData().getMembersListCopy();
 
-        return (int) retval; // Cast to int and return
+        int retval = 0;
+
+        for(FleetMemberAPI member : fleet)
+        {
+            //Console.showMessage(member.getShipName());
+            if(member.isCivilian()) continue;
+            PersonAPI captain = member.getCaptain();
+            if(captain == null) continue;
+            if(captain.isAICore()) continue;
+            if(captain.isDefault()) continue;
+
+            if (member.isFrigate()) retval += FRIGATE_VAL;
+            else if (member.isDestroyer()) retval += DESTROYER_VAL;
+            else if (member.isCruiser()) retval += CRUISER_VAL;
+            else if (member.isCapital()) retval += CAPITAL_VAL;
+        }
+
+        if(retval > MAX_POINTS) retval = MAX_POINTS;
+        return retval;
+
     }
 
     @Override
-    public void addTooltip(SCData data, TooltipMakerAPI tooltip) {
+    public int getProvidedPoints() {
+        return calcProvidedPoints();
+    }
+
+    @Override
+    public void addTooltip(SCData data, @NotNull TooltipMakerAPI tooltip) {
         if(data.isPlayer())
         {
-            tooltip.addPara("Provides automated ship points that scale with surplus crew (maximum of 150)", 0f, Misc.getHighlightColor(), Misc.getHighlightColor());
-            tooltip.addPara("Automated ship points start at %s, and gains an additional %s points at %s, %s and %s crew*", 0f, Misc.getGrayColor(), Misc.getHighlightColor(), "60", "30", "500", "1500", "3000");
-            tooltip.addPara("*Bonus points scale linearly between breakpoints", 0f, Misc.getGrayColor(), Misc.getHighlightColor());
+            tooltip.addPara("Provides automated ship points that scale with the number of non-civilian ships with assigned officers", 0f, Misc.getHighlightColor(), Misc.getHighlightColor());
+            tooltip.addPara("   - Each eligible ship provides %s/%s/%s/%s automated ship points, based on hullsize", 0f, Misc.getTextColor(), Misc.getHighlightColor(), "15", "25", "35", "50");
+            tooltip.addPara("   - Only officers selectable in the Officer Selection Window are eligible", 0f, Misc.getTextColor(), Misc.getHighlightColor(), "25");
+            tooltip.addPara("   - The maximum bonus is %s", 0f, Misc.getTextColor(), Misc.getHighlightColor(), "180");
 
             int provided = getProvidedPoints();
 
@@ -46,5 +76,4 @@ public class HumanWarmind extends DustkeeperBaseAutoPointsSkillPlugin { // Now c
 
         super.addTooltip(data, tooltip);
     }
-
 }

@@ -3,6 +3,7 @@ package shmoneelse.sicdustkeeper.skills.dustkeeper.scripts;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.combat.ShipAPI;
 import com.fs.starfarer.api.combat.ViewportAPI;
+import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.combat.entities.Ship;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.util.vector.Vector2f;
@@ -32,16 +33,31 @@ public class EscortDroneSubsystem extends MagicDroneSubsystem {
         activeSkills = d.getAllActiveSkillsPlugins();
 
         if(!ship.isStationModule() && !ship.isFighter()) {
-            if(ship.isFrigate())
-                numDrones = 1;
-            else if (ship.isDestroyer())
-                numDrones = 3;
-            else if (ship.isCruiser())
-                numDrones = 5;
-            else if (ship.isCapital())
-                numDrones = 7;
-            else if (ship.isStation())
-                numDrones = 9;
+            if(Misc.isAutomated(ship)) {
+                if (ship.isFrigate())
+                    numDrones = 1;
+                else if (ship.isDestroyer())
+                    numDrones = 3;
+                else if (ship.isCruiser())
+                    numDrones = 5;
+                else if (ship.isCapital())
+                    numDrones = 7;
+                else if (ship.isStation())
+                    numDrones = 9;
+            }
+            else
+            {
+                if (ship.isFrigate())
+                    numDrones = 1;
+                else if (ship.isDestroyer())
+                    numDrones = 2;
+                else if (ship.isCruiser())
+                    numDrones = 3;
+                else if (ship.isCapital())
+                    numDrones = 4;
+                else if (ship.isStation())
+                    numDrones = 5;
+            }
         }
         setDronesToSpawn(numDrones);
     }

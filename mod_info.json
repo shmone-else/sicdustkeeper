@@ -1,9 +1,9 @@
 {
     "id":"sicdustkeeper", # For the convenience of troubleshooters, include your name and the mod name, not just an acronym.
-	"name":"Second in Command Dustkeeper", # Displayed to the player
+	"name":"Second-in-Command: Dustkeeper", # Displayed to the player
 	"author":"shmone-else",
     "utility":"false",
-	"version":"1.4.1",
+	"version":"1.5.1",
 	"description":"Adds a Dustkeeper-themed XO to Second in Command.",
     "gameVersion": "0.97a-RC11",
   	"jars":["jars/sicdustkeeper.jar"],

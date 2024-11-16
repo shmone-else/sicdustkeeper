@@ -29,21 +29,28 @@ public class NetworkDepth  extends SCBaseSkillPlugin {
 
     @Override
     public void addTooltip(SCData scData, TooltipMakerAPI tooltip) {
-        tooltip.addPara("AI cores no longer give ships a multiplier to their automated ship point cost", 0f,Misc.getHighlightColor(),Misc.getHighlightColor());
-        tooltip.addPara("AI cores increase the deployment cost of ships they are installed into", 0f, Misc.getNegativeHighlightColor(), Misc.getNegativeHighlightColor());
-        tooltip.addSpacer(10f);
+        tooltip.addPara("AI cores have a reduced multiplier to their automated ship point cost", 0f,Misc.getHighlightColor(),Misc.getHighlightColor());
+        tooltip.addPara("+10%% deployment costs for ships with AI cores", 0f, Misc.getNegativeHighlightColor(), Misc.getNegativeHighlightColor());
+        /*tooltip.addSpacer(10f);
         tooltip.addPara("" +
                         "The increase in deployment points depends on the installed AI cores - " +
                         "%s for an Alpha Core, " +
                         "%s for an Beta Core, " +
                         "%s for a Gamma Core. Does not apply to automated ships that do not require the automated ships skill.", 0f,
-                Misc.getGrayColor(), Misc.getHighlightColor(), "18%", "12%", "6%");
+                Misc.getGrayColor(), Misc.getHighlightColor(), "18%", "12%", "6%");*/
+        tooltip.addSpacer(10f);
+        tooltip.addPara("" +
+                        "The new multiplier is equal to %s, or " +
+                        "%s for an Alpha Core, " +
+                        "%s for an Beta Core, " +
+                        "%s for a Gamma Core. This skill does not affect automated ships that do not require the automated ships skill.", 0f,
+                Misc.getGrayColor(), Misc.getHighlightColor(), "1 + (AI core multiplier - 1) / 3","2x", "1.66x", "1.33x");
     }
 
     @Override
     public void applyEffectsBeforeShipCreation(SCData data, MutableShipStatsAPI stats, ShipVariantAPI variant, ShipAPI.HullSize hullSize, String id) {
         if(!Misc.isAutomated(stats)) return;
-        if(variant.getHullSpec().hasTag(Tags.TAG_AUTOMATED_NO_PENALTY)) return;
+        if(variant.getHullSpec().hasTag(Tags.TAG_AUTOMATED_NO_PENALTY)) return; // We don't need to bother if the ship doesn't have AI mults anyway
 
         if(stats.getFleetMember() == null) return;
         if(stats.getFleetMember().getCaptain() == null) return;
@@ -52,16 +59,17 @@ public class NetworkDepth  extends SCBaseSkillPlugin {
 
         float getmult = stats.getFleetMember().getCaptain().getMemoryWithoutUpdate().getFloat(AICoreOfficerPlugin.AUTOMATED_POINTS_MULT);
         float mult = 1f; // Default values if we're under 1 for an AI multiplier - no change
-        float dpmult = 0f;
+        //float dpmult = 0f;
         if(getmult >= 1f) { // Correcting for an issue with Adaptive Tactical Cores
             // They have a mult of 0f, and 1f / 0f means you start getting near floatmax due to how floating points work. This just sanity checks that the AI mult is non-zero.
-            mult = 1f / stats.getFleetMember().getCaptain().getMemoryWithoutUpdate().getFloat(AICoreOfficerPlugin.AUTOMATED_POINTS_MULT);
-            dpmult = stats.getFleetMember().getCaptain().getMemoryWithoutUpdate().getFloat(AICoreOfficerPlugin.AUTOMATED_POINTS_MULT) - 1f; // Remove the base cost
-            dpmult *= 6f;
+            float cmult = stats.getFleetMember().getCaptain().getMemoryWithoutUpdate().getFloat(AICoreOfficerPlugin.AUTOMATED_POINTS_MULT);
+            mult = (1f + (cmult - 1f) / 3f) / cmult;
+            //dpmult = stats.getFleetMember().getCaptain().getMemoryWithoutUpdate().getFloat(AICoreOfficerPlugin.AUTOMATED_POINTS_MULT) - 1f; // Remove the base cost
+            //dpmult *= 6f;
         }
 
         stats.getDynamic().getStat("sc_auto_points_mult").modifyMult("network_depth", mult);
-        stats.getDynamic().getMod(Stats.DEPLOYMENT_POINTS_MOD).modifyPercent(id, dpmult);
+        stats.getDynamic().getMod(Stats.DEPLOYMENT_POINTS_MOD).modifyPercent(id, 10f);
     }
 
     @Override

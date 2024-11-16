@@ -4,15 +4,19 @@ package shmoneelse.sicdustkeeper.skills.dustkeeper;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 import com.fs.starfarer.api.characters.MutableCharacterStatsAPI;
+import com.fs.starfarer.api.characters.PersonAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.plugins.OfficerLevelupPlugin;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import com.fs.starfarer.rpg.Person;
 import second_in_command.SCData;
 import second_in_command.specs.SCBaseSkillPlugin;
+import org.magiclib.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class CyberwarfareTraining extends SCBaseSkillPlugin{
 
@@ -35,12 +39,12 @@ public class CyberwarfareTraining extends SCBaseSkillPlugin{
 
     @Override
     public void addTooltip(SCData scData, TooltipMakerAPI tooltipMakerAPI) {
-        tooltipMakerAPI.addPara("Grants AI cores an inferior version of the Cyberwarfare Protocols skill*", 0f, Misc.getHighlightColor(), Misc.getHighlightColor());
+        tooltipMakerAPI.addPara("Grants AI cores of Level 5 or higher an inferior version of the Cyberwarfare Protocols skill*", 0f, Misc.getHighlightColor(), Misc.getHighlightColor());
         tooltipMakerAPI.addPara("Increases the level of AI cores that already have Cyberwarfare Protocols by 1", 0f, Misc.getHighlightColor(), Misc.getHighlightColor());
         tooltipMakerAPI.addPara("   - If this officer is unassigned, the level is reduced back to the default and the skill is unlearned", 0f, Misc.getTextColor(), Misc.getHighlightColor());
         tooltipMakerAPI.addPara("   - If the core has more skills than possible at that level, it removes them automatically.", 0f, Misc.getTextColor(), Misc.getHighlightColor());
         tooltipMakerAPI.addSpacer(10f);
-        tooltipMakerAPI.addPara("* The Cyberwarfare Training skill has reduced chance intrusion effectiveness and a longer cooldown than normal", 0f, Misc.getGrayColor(), Misc.getHighlightColor());
+        tooltipMakerAPI.addPara("* The Cyberwarfare Training skill has reduced chance intrusion effectiveness and a longer cooldown than normal.", 0f, Misc.getGrayColor(), Misc.getHighlightColor());
 
     }
 
@@ -56,6 +60,7 @@ public class CyberwarfareTraining extends SCBaseSkillPlugin{
         for (FleetMemberAPI member : fleetList) {
             if(member.getCaptain() == null) continue;
             if(!member.getCaptain().isAICore()) continue;
+            if(member.getCaptain().getStats().getLevel() < 5) continue;
             if(member.getCaptain().getMemoryWithoutUpdate().getBoolean("$CyberwarfareTraining")) continue;
 
             if(member.getCaptain().getStats().hasSkill("sotf_cyberwarfare"))
@@ -76,19 +81,33 @@ public class CyberwarfareTraining extends SCBaseSkillPlugin{
     @Override
     public void onActivation(SCData data) {
         if(data.isNPC()) { // NPCs only
-            for (FleetMemberAPI fleet : data.getFleet().getFleetData().getMembersListCopy())
-            {
-                if(fleet.getCaptain() == null) continue;
-                if(!fleet.getCaptain().isAICore()) continue; // AI cores only
-                if(Global.getSector().getImportantPeople().containsPerson(fleet.getCaptain())) continue; // Also not IBB bounties
-                if(fleet.getCaptain().hasTag("cyberwarfare_update")) continue; // Don't duplicate
+            for (FleetMemberAPI fleet : data.getFleet().getFleetData().getMembersListCopy()) {
+                PersonAPI core = fleet.getCaptain();
 
-                fleet.getCaptain().addTag("cyberwarfare_update");
+                if (core == null) continue;
+                if (!core.isAICore()) continue; // AI cores only
+                if (Global.getSector().getImportantPeople().containsPerson(core)) continue; // Also not IBB bounties
+                if (core.getStats().getLevel() < 5) continue;
+                if (core.hasTag("cyberwarfare_update")) continue; // Don't duplicate
 
-                if(fleet.getCaptain().getStats().hasSkill("sotf_cyberwarfare"))
-                    ; // Currently not implemented, should fix... eventually...
+                core.addTag("cyberwarfare_update");
+                core.getMemoryWithoutUpdate().set("$CyberwarfareTraining", true); // In case it ever ends up in the player fleet
+
+                if (core.getStats().hasSkill("sotf_cyberwarfare"))
+                {
+                    core.getStats().setLevel(core.getStats().getLevel() + 1);
+                    OfficerLevelupPlugin plugin = (OfficerLevelupPlugin) Global.getSettings().getPlugin("officerLevelUp");
+
+                    Random rand = new Random();
+                    List<String> pickList = plugin.pickLevelupSkills(core, rand);
+                    if(!pickList.isEmpty())
+                    {
+                        String pick = pickList.get(rand.nextInt(pickList.size()));
+                        core.getStats().setSkillLevel(pick, 2f);
+                    }
+                }
                 else
-                    fleet.getCaptain().getStats().setSkillLevel("sotf_cyberwarfare_nerfed", 1f);
+                    core.getStats().setSkillLevel("sotf_cyberwarfare_nerfed", 1f);
             }
         }
     }

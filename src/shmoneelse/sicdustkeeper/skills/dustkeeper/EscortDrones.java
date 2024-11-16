@@ -17,18 +17,19 @@ import shmoneelse.sicdustkeeper.skills.dustkeeper.scripts.EscortDroneSubsystem;
 public class EscortDrones extends SCBaseSkillPlugin{
     @Override
     public String getAffectsString() {
-        return "all automated ships";
+        return "all ships";
     }
 
     @Override
     public void addTooltip(SCData scData, TooltipMakerAPI tooltipMakerAPI) {
-        tooltipMakerAPI.addPara("Ships gain 1/3/5/7 escort Brattice Drones based on their hullsize", 0f, Misc.getHighlightColor(), Misc.getHighlightColor());
+        tooltipMakerAPI.addPara("Automated ships gain 1/3/5/7 escort Brattice Drones based on their hullsize", 0f, Misc.getHighlightColor(), Misc.getHighlightColor());
+        tooltipMakerAPI.addPara("Non-automated ships instead gain 1/2/3/4 escort Brattice Drones based on their hullsize", 0f, Misc.getHighlightColor(), Misc.getHighlightColor());
         tooltipMakerAPI.addPara("Due to their independent nature, these drones are affected by skills but not by hullmods from their mother ship", 0f, Misc.getHighlightColor(), Misc.getHighlightColor());
     }
 
     @Override
     public void applyEffectsAfterShipCreation(SCData data, ShipAPI ship, ShipVariantAPI variant, String id) {
-        if(!Misc.isAutomated(ship)) return;
+        //if(!Misc.isAutomated(ship)) return;
         MagicSubsystemsManager.addSubsystemToShip(ship, new EscortDroneSubsystem(ship, data));
     }
 
