@@ -66,7 +66,7 @@ public class HumanWarmind extends DustkeeperBaseAutoPointsSkillPlugin { // Now c
         {
             tooltip.addPara("Provides automated ship points that scale with the number of non-civilian ships with assigned officers", 0f, Misc.getHighlightColor(), Misc.getHighlightColor());
             tooltip.addPara("   - Each eligible ship provides %s/%s/%s/%s automated ship points, based on hullsize", 0f, Misc.getTextColor(), Misc.getHighlightColor(), "15", "25", "35", "50");
-            tooltip.addPara("   - Only officers selectable in the Officer Selection Window are eligible", 0f, Misc.getTextColor(), Misc.getHighlightColor(), "25");
+            tooltip.addPara("   - Only human officers selectable in the Officer Selection Window are eligible", 0f, Misc.getTextColor(), Misc.getHighlightColor(), "25");
             tooltip.addPara("   - The maximum bonus is %s", 0f, Misc.getTextColor(), Misc.getHighlightColor(), "180");
 
             int provided = getProvidedPoints();
