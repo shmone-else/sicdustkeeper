@@ -11,6 +11,7 @@ import org.magiclib.subsystems.drones.MagicDroneSubsystem;
 import second_in_command.SCData;
 import second_in_command.specs.SCBaseSkillPlugin;
 import second_in_command.specs.SCOfficer;
+import com.fs.starfarer.api.characters.PersonAPI;
 
 import java.util.List;
 
@@ -18,7 +19,6 @@ public class EscortDroneSubsystem extends MagicDroneSubsystem {
     int numDrones = 0;
     List<SCBaseSkillPlugin> activeSkills;
     SCData d;
-
 
     public EscortDroneSubsystem(ShipAPI ship, SCData data) {
         super(ship);
@@ -70,6 +70,7 @@ public class EscortDroneSubsystem extends MagicDroneSubsystem {
         // A similar technique could be used to get hullmod effects off the parent ship as well, in theory.
         for(SCBaseSkillPlugin plugin : activeSkills)
             plugin.applyEffectsToFighterSpawnedByShip(d, fighter, ship, plugin.getId());
+
         return fighter;
     }
 

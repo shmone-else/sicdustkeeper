@@ -13,7 +13,7 @@ import com.fs.starfarer.api.combat.ShipVariantAPI;
 public class FocusedOptimization extends SCBaseSkillPlugin {
     @Override
     public String getAffectsString() {
-        return "all automated ships";
+        return "all ships";
     }
 
     @Override
@@ -24,18 +24,12 @@ public class FocusedOptimization extends SCBaseSkillPlugin {
 
     @Override
     public void applyEffectsBeforeShipCreation(SCData data, MutableShipStatsAPI stats, ShipVariantAPI variant, ShipAPI.HullSize hullSize, String id) {
-        if (!Misc.isAutomated(stats)) return;
+        //if (!Misc.isAutomated(stats)) return;
         if (variant.getHullMods().contains("rugged")) { // If we're rugged, boost armor
-            stats.getEmpDamageTakenMult().modifyMult(id, .66f);
+            stats.getEmpDamageTakenMult().modifyMult(id, .67f);
         } else {
             stats.getHardFluxDissipationFraction().modifyFlat(id, 0.1f);
         }
     }
 
-    @Override
-    public void applyEffectsAfterShipCreation(SCData data, ShipAPI ship, ShipVariantAPI variant, String id) {
-        if (!Misc.isAutomated(ship)) return;
-        String sprite = Global.getSettings().getSpriteName("damage", "dmod_overlay_none");
-        ship.setDHullOverlay(sprite);
-    }
 }

@@ -24,7 +24,7 @@ public class EscortDrones extends SCBaseSkillPlugin{
     public void addTooltip(SCData scData, TooltipMakerAPI tooltipMakerAPI) {
         tooltipMakerAPI.addPara("Automated ships gain 1/3/5/7 escort Brattice Drones based on their hullsize", 0f, Misc.getHighlightColor(), Misc.getHighlightColor());
         tooltipMakerAPI.addPara("Non-automated ships instead gain 1/2/3/4 escort Brattice Drones based on their hullsize", 0f, Misc.getHighlightColor(), Misc.getHighlightColor());
-        tooltipMakerAPI.addPara("Due to their independent nature, these drones are affected by skills but not by hullmods from their mother ship", 0f, Misc.getHighlightColor(), Misc.getHighlightColor());
+        tooltipMakerAPI.addPara("Due to their independent nature, these drones are affected by Executive Officer skills but not by hullmods from their mother ship", 0f, Misc.getHighlightColor(), Misc.getHighlightColor());
     }
 
     @Override

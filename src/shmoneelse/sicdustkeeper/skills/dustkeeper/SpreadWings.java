@@ -13,7 +13,9 @@ import com.fs.starfarer.api.combat.ShipAPI;
 import com.fs.starfarer.api.combat.ShipVariantAPI;
 
 public class SpreadWings extends SCBaseSkillPlugin {
-    float PDBONUS = 100f;
+    int PDBONUS = 100;
+    int FIREBONUS = 10;
+    int SPEEDBONUS = 15;
 
     @Override
     public String getAffectsString() {
@@ -22,9 +24,9 @@ public class SpreadWings extends SCBaseSkillPlugin {
 
     @Override
     public void addTooltip(SCData scData, TooltipMakerAPI tooltipMakerAPI) {
-        tooltipMakerAPI.addPara("+100 point defense weapon range", 0f, Misc.getHighlightColor(), Misc.getHighlightColor());
-        tooltipMakerAPI.addPara("+10%% weapon fire rate", 0f, Misc.getHighlightColor(), Misc.getHighlightColor());
-        tooltipMakerAPI.addPara("+15%% top speed", 0f, Misc.getHighlightColor(), Misc.getHighlightColor());
+        tooltipMakerAPI.addPara("+%s point defense weapon range", 0f, Misc.getHighlightColor(), Misc.getHighlightColor(), String.valueOf(PDBONUS));
+        tooltipMakerAPI.addPara("+%s%% weapon fire rate and non-missile ammunition recharge rate", 0f, Misc.getHighlightColor(), Misc.getHighlightColor(), String.valueOf(FIREBONUS));
+        tooltipMakerAPI.addPara("+%s%% top speed", 0f, Misc.getHighlightColor(), Misc.getHighlightColor(), String.valueOf(SPEEDBONUS));
 
     }
 
@@ -36,13 +38,16 @@ public class SpreadWings extends SCBaseSkillPlugin {
             stats.getBeamPDWeaponRangeBonus().modifyFlat(id, PDBONUS);
             stats.getNonBeamPDWeaponRangeBonus().modifyFlat(id, PDBONUS);
 
-            stats.getMaxSpeed().modifyPercent(id, 15f);
-            stats.getAcceleration().modifyPercent(id, 15f * 2f);
-            stats.getDeceleration().modifyPercent(id, 15f * 2f);
+            stats.getMaxSpeed().modifyPercent(id, SPEEDBONUS);
+            stats.getAcceleration().modifyPercent(id, SPEEDBONUS * 2f);
+            stats.getDeceleration().modifyPercent(id, SPEEDBONUS * 2f);
 
-            stats.getBallisticRoFMult().modifyPercent(id, 10f);
-            stats.getEnergyRoFMult().modifyPercent(id, 10f);
-            stats.getMissileRoFMult().modifyPercent(id, 10f);
+            stats.getBallisticRoFMult().modifyPercent(id, FIREBONUS);
+            stats.getEnergyRoFMult().modifyPercent(id, FIREBONUS);
+            stats.getMissileRoFMult().modifyPercent(id, FIREBONUS);
+
+            stats.getEnergyAmmoRegenMult().modifyPercent(id, FIREBONUS);
+            stats.getBallisticAmmoRegenMult().modifyPercent(id, FIREBONUS);
         }
     }
 }
