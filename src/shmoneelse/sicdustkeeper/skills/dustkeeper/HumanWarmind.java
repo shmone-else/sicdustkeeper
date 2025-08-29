@@ -9,7 +9,9 @@ import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import org.jetbrains.annotations.NotNull;
 import org.lazywizard.console.Console;
 import second_in_command.SCData;
+import second_in_command.SCUtils;
 import com.fs.starfarer.api.util.Misc;
+import second_in_command.misc.SCSettings;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -51,7 +53,7 @@ public class HumanWarmind extends DustkeeperBaseAutoPointsSkillPlugin { // Now c
         }
 
         if(retval > MAX_POINTS) retval = MAX_POINTS;
-        return retval;
+        return Math.round(retval * SCSettings.getAutoPointsMult()); // Multiply by the Automated Points Mult
 
     }
 
@@ -61,13 +63,15 @@ public class HumanWarmind extends DustkeeperBaseAutoPointsSkillPlugin { // Now c
     }
 
     @Override
-    public void addTooltip(SCData data, @NotNull TooltipMakerAPI tooltip) {
+    public void addTooltip(SCData data, @NotNull TooltipMakerAPI tooltip) { // Updated to factor in the autopoint mult
         if(data.isPlayer())
         {
             tooltip.addPara("Provides automated ship points that scale with the number of non-civilian ships with assigned officers", 0f, Misc.getHighlightColor(), Misc.getHighlightColor());
-            tooltip.addPara("   - Each eligible ship provides %s/%s/%s/%s automated ship points, based on hullsize", 0f, Misc.getTextColor(), Misc.getHighlightColor(), "15", "25", "35", "50");
+            tooltip.addPara("   - Each eligible ship provides %s/%s/%s/%s automated ship points, based on hullsize", 0f, Misc.getTextColor(), Misc.getHighlightColor(),
+                    Integer.toString(Math.round(FRIGATE_VAL * SCSettings.getAutoPointsMult())), Integer.toString(Math.round(DESTROYER_VAL * SCSettings.getAutoPointsMult())),
+                    Integer.toString(Math.round(CRUISER_VAL * SCSettings.getAutoPointsMult())), Integer.toString(Math.round(CAPITAL_VAL * SCSettings.getAutoPointsMult())));
             tooltip.addPara("   - Only human officers selectable in the Officer Selection Window are eligible", 0f, Misc.getTextColor(), Misc.getHighlightColor(), "25");
-            tooltip.addPara("   - The maximum bonus is %s", 0f, Misc.getTextColor(), Misc.getHighlightColor(), "180");
+            tooltip.addPara("   - The maximum bonus is %s", 0f, Misc.getTextColor(), Misc.getHighlightColor(), String.valueOf(Math.round(MAX_POINTS * SCSettings.getAutoPointsMult())));
 
             int provided = getProvidedPoints();
 

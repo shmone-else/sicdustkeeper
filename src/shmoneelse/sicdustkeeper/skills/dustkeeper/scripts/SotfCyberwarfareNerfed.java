@@ -8,6 +8,7 @@ package shmoneelse.sicdustkeeper.skills.dustkeeper.scripts;
 import com.fs.starfarer.api.GameState;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.characters.AfterShipCreationSkillEffect;
+import com.fs.starfarer.api.characters.DescriptionSkillEffect;
 import com.fs.starfarer.api.characters.MutableCharacterStatsAPI;
 import com.fs.starfarer.api.characters.SkillSpecAPI;
 import com.fs.starfarer.api.combat.*;
@@ -15,6 +16,7 @@ import com.fs.starfarer.api.combat.listeners.AdvanceableListener;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.impl.campaign.ids.HullMods;
 import com.fs.starfarer.api.impl.campaign.ids.Stats;
+import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.impl.campaign.skills.BaseSkillEffectDescription;
 import com.fs.starfarer.api.impl.combat.CRPluginImpl;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
@@ -34,16 +36,15 @@ import java.util.List;
 public class SotfCyberwarfareNerfed {
 
     public static float RANGE = 900f;
-    public static float HACK_COOLDOWN = 90f;
-    public static float FIGHTER_HACK_COOLDOWN = 20f;
-    public static float OVERRIDE_DURATION = 7.5f;
+    public static float HACK_COOLDOWN = 70f;
+    public static float FIGHTER_HACK_COOLDOWN = 15f;
+    public static float OVERRIDE_DURATION = 15f;
     public static float TSEQ_DAMAGE = 1.25f; // energy damage = fighter's max hull * this
 
     public static float BASE_ECM_RATING = 10f;
     //public static float CHANCE_PER_ECM_DIFF = 0.05f;
 
     public static float ECM_PENALTY = 5f;
-
 
     // each deducts 1 point of ECM rating
     public static Set<String> VULNERABLE_DMODS = new HashSet<>();
@@ -82,18 +83,37 @@ public class SotfCyberwarfareNerfed {
     public static float VFX_BEAM_FULL = 0.25f;
     public static float VFX_BEAM_FADEOUT = 0.5f;
 
+    public static class Level0 implements DescriptionSkillEffect {
+        public String getString() {
+            return
+                    "*ECM rating is increased by 1 per 1% contributed to the fleet's ECM score, " +
+                            "reduced by 3 for non-militarized civilian ships, reduced by 1 for d-mods affecting subsystems, sensors or comms" +
+                            "**Targets with an ECCM package (or equivalent resistance to ECM range penalty) suffer reduced disruption"
+                    ;
+        }
+        public Color[] getHighlightColors() {
+            return null;
+        }
+        public String[] getHighlights() {
+            return null;
+        }
+        public Color getTextColor() {
+            return null;
+        }
+    }
+
     public static class Level1 extends BaseSkillEffectDescription implements AfterShipCreationSkillEffect {
 
         public void applyEffectsAfterShipCreation(ShipAPI ship, String id) {
             if (ship.isStationModule()) return;
             if (ship.isFighter()) return;
-            ship.addListener(new SotfCyberwarfareShipHackScriptNerfed(ship));
+            ship.addListener(new SotfCyberwarfareShipHackScript(ship));
         }
 
         public void unapplyEffectsAfterShipCreation(ShipAPI ship, String id) {
             if (ship.isStationModule()) return;
             if (ship.isFighter()) return;
-            ship.removeListenerOfClass(SotfCyberwarfareShipHackScriptNerfed.class);
+            ship.removeListenerOfClass(SotfCyberwarfareShipHackScript.class);
         }
 
         public void apply(MutableShipStatsAPI stats, ShipAPI.HullSize hullSize, String id, float level) {
@@ -151,10 +171,10 @@ public class SotfCyberwarfareNerfed {
         }
     }
 
-    public static class SotfCyberwarfareShipHackScriptNerfed implements AdvanceableListener {
+    public static class SotfCyberwarfareShipHackScript implements AdvanceableListener {
         protected ShipAPI ship;
         protected float checkTimer = 0f;
-        protected float internalCDTimer = HACK_COOLDOWN / 2;
+        protected float internalCDTimer = HACK_COOLDOWN / 2f;
         protected int timesHacked = 0;
 
         public float getHackRange() {
@@ -169,7 +189,7 @@ public class SotfCyberwarfareNerfed {
             return ship.getMutableStats().getDynamic().getValue(SotfIDs.STAT_CYBERWARFARE_PENETRATION_MULT, 1f);
         }
 
-        public SotfCyberwarfareShipHackScriptNerfed(ShipAPI ship) {
+        public SotfCyberwarfareShipHackScript(ShipAPI ship) {
             this.ship = ship;
             internalCDTimer = getHackCooldown() / 2;
         }
@@ -241,7 +261,7 @@ public class SotfCyberwarfareNerfed {
                 canCooldown = false;
             }
 
-            float timeMult = (Global.getCombatEngine().getTimeMult().getModifiedValue() * ship.getMutableStats().getTimeMult().getModifiedValue());
+            float timeMult = Global.getCombatEngine().getTimeMult().getModifiedValue();
             if (canCooldown) {
                 internalCDTimer -= amount * timeMult;
             }
@@ -297,10 +317,10 @@ public class SotfCyberwarfareNerfed {
 
         public void executeHack(ShipAPI target) {
             WeightedRandomPicker<String> hackPicker = new WeightedRandomPicker<String>();
-            if (target.getUsableWeapons().size() > 0) {
+            if (!target.getUsableWeapons().isEmpty()) {
                 hackPicker.add("weapons");
             }
-            if (target.getEngineController().getShipEngines().size() > 0 && !target.getEngineController().isFlamedOut()) {
+            if (!target.getEngineController().getShipEngines().isEmpty() && !target.getEngineController().isFlamedOut()) {
                 float enginesWeight = 0.8f;
                 // prioritise engine hacks against fleeing ships
                 if (target.getShipAI() != null) {
@@ -328,6 +348,10 @@ public class SotfCyberwarfareNerfed {
                 float systemWeight = 1f;
                 if (target.getSystem().isOutOfAmmo()) {
                     systemWeight = 0f;
+                }
+                // screw you, Doom
+                if (target.getSystem().getId().contains("mine")) {
+                    systemWeight += 2f;
                 }
                 hackPicker.add("system", systemWeight);
             }
@@ -480,7 +504,7 @@ public class SotfCyberwarfareNerfed {
                                 Misc.getDistance(from, targetWeapon.getLocation()),
                                 Color.WHITE,
                                 Misc.getNegativeHighlightColor());
-                        targetWeapon.disable();
+                        targetWeapon.disable(false);
                     }
                     break;
                 case "engines":
@@ -510,13 +534,13 @@ public class SotfCyberwarfareNerfed {
                                     HACK_COLOR);
                             disabledSoFar += contrib;
                             disabledAnEngine = true;
-                            engine.disable();
+                            engine.disable(false);
                         }
                     }
                     if (!disabledAnEngine) {
                         for (ShipEngineControllerAPI.ShipEngineAPI engine : engines) {
                             if (engine.isDisabled()) continue;
-                            engine.disable();
+                            engine.disable(false);
                             break;
                         }
                     }
@@ -683,34 +707,479 @@ public class SotfCyberwarfareNerfed {
                     target.isFighter() ||
                     target.isPhased() ||
                     target.getCollisionClass() == CollisionClass.NONE || target.getVariant().hasHullMod(HullMods.VASTBULK)) {
-                isValid = false;
+                return false;
             }
             if (target.isStationModule()) {
                 ShipAPI station = target.getParentStation();
                 if (!station.getVariant().hasHullMod(HullMods.VASTBULK)) {
-                    isValid = false;
+                    return false;
                 }
+            }
+            // not vs Dweller
+            if (ship.getHullSpec().hasTag(Tags.MONSTER)) {
+                return false;
             }
             // don't try to hack Omega if we've ever tried it before
             if (ship.getCaptain() != null && target.getHullStyleId().contains("OMEGA")) {
                 if (ship.getCaptain().getMemoryWithoutUpdate().contains(TRIED_CYBER_ON_OMEGA)) {
-                    isValid = false;
+                    return false;
                 }
             }
             if (ship.getCaptain() != null && target.getCaptain() != null && target.getCaptain().getStats().hasSkill("AL_convictionfirewall")) {
                 if (ship.getCaptain().getMemoryWithoutUpdate().contains(TRIED_CYBER_ON_CONVICTION)) {
-                    isValid = false;
+                    return false;
                 }
             }
             // must be valid for at least one intrusion type
-            if (target.getUsableWeapons().size() == 0 &&
-                    target.getEngineController().getShipEngines().size() == 0 &&
+            if (target.getUsableWeapons().isEmpty() &&
+                    target.getEngineController().getShipEngines().isEmpty() &&
                     target.getShield() == null && target.getPhaseCloak() == null &&
                     target.getSystem() == null) {
+                return false;
+            }
+            return isValid;
+        }
+    }
+
+    // Elite
+    public static class Level2 extends BaseSkillEffectDescription implements AfterShipCreationSkillEffect {
+
+        public void applyEffectsAfterShipCreation(ShipAPI ship, String id) {
+            ship.addListener(new SotfCyberwarfareFighterHackScript(ship));
+        }
+
+        public void unapplyEffectsAfterShipCreation(ShipAPI ship, String id) {
+            ship.removeListenerOfClass(SotfCyberwarfareFighterHackScript.class);
+        }
+
+        public void apply(MutableShipStatsAPI stats, ShipAPI.HullSize hullSize, String id, float level) {
+
+        }
+        public void unapply(MutableShipStatsAPI stats, ShipAPI.HullSize hullSize, String id) {
+
+        }
+
+        public String getEffectDescription(float level) {
+            return null;
+        }
+
+        public void createCustomDescription(MutableCharacterStatsAPI stats, SkillSpecAPI skill,
+                                            TooltipMakerAPI info, float width) {
+            init(stats, skill);
+
+            Color c = hc;
+            //info.addPara("Enables takeover of a targeted fighter wing's controls every %s seconds, causing it to fight for the ship for %s seconds",
+            //        0f, c, c, "" + (int) HACK_COOLDOWN, "" + (int) OVERRIDE_DURATION);
+            //info.addPara("Human-piloted fighter craft then regain control, drones are instead turned into improvised missiles that deal energy damage " +
+            //                "equal to %s of their maximum hull integrity",
+            //        0f, c, c, "" + (int) (TSEQ_DAMAGE * 100f) + "%");
+            //info.addPara("Hacked craft are then turned into improvised missiles that deal energy damage " +
+            //                        "equal to %s of their maximum hull integrity",
+            //                0f, c, c, "" + (int) (TSEQ_DAMAGE * 100f) + "%");
+
+            info.addPara("\nEnables remote disruption of a targeted fighter wing's controls every %s seconds, causing all wing members to instantly overload and flameout",
+                    0f, c, c, "" + (int) FIGHTER_HACK_COOLDOWN);
+
+        }
+
+        public ScopeDescription getScopeDescription() {
+            return ScopeDescription.PILOTED_SHIP;
+        }
+    }
+
+    public static class SotfCyberwarfareFighterHackScript implements AdvanceableListener {
+        protected ShipAPI ship;
+        protected float checkTimer = 0f;
+        protected float internalCDTimer = FIGHTER_HACK_COOLDOWN / 2f; // start at half cooldown
+        protected int timesHacked = 0;
+
+        public float getHackRange() {
+            return RANGE * ship.getMutableStats().getEnergyWeaponRangeBonus().getBonusMult();
+        }
+
+        public float getHackCooldown() {
+            return FIGHTER_HACK_COOLDOWN * ship.getMutableStats().getDynamic().getValue(SotfIDs.STAT_CYBERWARFARE_COOLDOWN_MULT, 1f);
+        }
+
+        public SotfCyberwarfareFighterHackScript(ShipAPI ship) {
+            this.ship = ship;
+            internalCDTimer = getHackCooldown() / 2f;
+        }
+
+        public void advance(float amount) {
+            if (!Global.getCurrentState().equals(GameState.COMBAT)) {
+                return;
+            }
+            if (!ship.isAlive() || ship.isFighter() || ship.isStationModule()) {
+                return;
+            }
+            boolean player = false;
+            boolean targetInvalid = false;
+            boolean playerTargetTooFar = false;
+            ShipAPI playerTarget = null;
+
+            boolean canCooldown = true;
+            if (ship.getFluxTracker().isOverloaded()) {
+                canCooldown = false;
+            }
+
+            float timeMult = Global.getCombatEngine().getTimeMult().getModifiedValue();
+            if (canCooldown) {
+                internalCDTimer -= amount * timeMult;
+            }
+            if (internalCDTimer < 0) {
+                internalCDTimer = 0;
+            }
+            // if player ship, ONLY hack their selected target
+            if (ship == Global.getCombatEngine().getPlayerShip()) {
+                player = true;
+                playerTarget = ship.getShipTarget();
+                if (playerTarget != null) {
+                    targetInvalid = !isValidTarget(ship, playerTarget);
+                    playerTargetTooFar = Misc.getDistance(ship.getLocation(), playerTarget.getLocation()) > getHackRange();
+                }
+            }
+            if (ship == Global.getCombatEngine().getPlayerShip()) {
+                String status = "";
+                if (internalCDTimer <= 0f) {
+                    if (playerTarget != null && targetInvalid) {
+                        status = "Invalid target wing [R]";
+                    } else if (playerTarget != null && playerTargetTooFar) {
+                        status = "Target wing [R] out of range";
+                    } else {
+                        status = "Select target wing [R]";
+                    }
+                } else if (internalCDTimer <= 3) {
+                    status = "Attempting fighter override";
+                } else if (timesHacked == 0) {
+                    status = "Establishing connection - " + (int) internalCDTimer;
+                } else {
+                    status = "Simulating vulnerability - " + (int) internalCDTimer;
+                }
+                Global.getCombatEngine().maintainStatusForPlayerShip(FIGHTER_HACK_KEY, "graphics/icons/status/sotf_cyberwarfare_fighterhack.png", "Cyberwarfare - Fighter Override", status, false);
+            }
+            if (!ship.getCustomData().containsKey(FIGHTER_HACK_CD_KEY)) {
+                SotfRingTimerVisualScript.AuraParams p = new SotfRingTimerVisualScript.AuraParams();
+                p.color = HACK_COLOR;
+                p.ship = ship;
+                p.radius = ship.getShieldRadiusEvenIfNoShield() + 35f;
+                p.thickness = 7f;
+                p.baseAlpha = 0.4f;
+                p.maxArc = 60f;
+                //p.followFacing = true;
+                p.renderDarkerCopy = true;
+                if (!player) {
+                    p.reverseRing = true;
+                }
+                p.degreeOffset = 15f;
+                p.layer = CombatEngineLayers.JUST_BELOW_WIDGETS;
+                SotfRingTimerVisualScript plugin = new SotfRingTimerVisualScript(p);
+                Global.getCombatEngine().addLayeredRenderingPlugin(plugin);
+                ship.setCustomData(FIGHTER_HACK_CD_KEY, plugin);
+            } else {
+                SotfRingTimerVisualScript visual = (SotfRingTimerVisualScript) ship.getCustomData().get(FIGHTER_HACK_CD_KEY);
+                visual.p.totalArc = 1f - (internalCDTimer / getHackCooldown());
+                if (internalCDTimer <= 0) {
+                    visual.p.baseAlpha = 0.8f;
+                }
+                if (player) {
+                    visual.p.reverseRing = false;
+                } else {
+                    visual.p.reverseRing = true;
+                }
+            }
+            if (internalCDTimer > 0f || ship.isPhased() || ship.getFluxTracker().isOverloadedOrVenting()) {
+                return;
+            }
+            ShipAPI target = null;
+            if (player && playerTarget != null && !targetInvalid && !playerTargetTooFar) {
+                target = playerTarget;
+            } else if (player) {
+                return;
+            } else {
+                target = findTarget(ship);
+            }
+            if (target != null) {
+                executeHack(target);
+                internalCDTimer = getHackCooldown();
+                timesHacked++;
+            }
+        }
+
+        public void executeHack(ShipAPI target) {
+            int newOwner = 0;
+            if (target.getOwner() == 0) {
+                newOwner = 1;
+            }
+            FighterWingAPI wing = target.getWing();
+            for (ShipAPI fighter : wing.getWingMembers()) {
+                if (!fighter.isAlive()) continue;
+                Vector2f from = Misc.getPointWithinRadius(ship.getShieldCenterEvenIfNoShield(), ship.getCollisionRadius() * 0.35f);
+                MagicFakeBeamPlugin.addBeam(
+                        VFX_BEAM_FULL,
+                        VFX_BEAM_FADEOUT,
+                        5f,
+                        from,
+                        Misc.getAngleInDegrees(from, fighter.getLocation()),
+                        Misc.getDistance(from, fighter.getLocation()),
+                        Color.WHITE,
+                        HACK_COLOR
+                );
+
+                fighter.getEngineController().forceFlameout();
+                fighter.getFluxTracker().beginOverloadWithTotalBaseDuration(1.5f);
+                fighter.getFluxTracker().showOverloadFloatyIfNeeded("Hacked!", HACK_COLOR, 0f, true);
+
+//                boolean resetTarget = Global.getCombatEngine().getPlayerShip() != null && Global.getCombatEngine().getPlayerShip().getShipTarget() == fighter;
+//
+//                ShipAPI newFighter = Global.getCombatEngine().getFleetManager(ship.getOwner()).spawnShipOrWing(fighter.getVariant().getHullVariantId(),
+//                        fighter.getLocation(),
+//                        fighter.getFacing(),
+//                        0f,
+//                        ship.getCaptain()
+//                );
+//                newFighter.setHitpoints(fighter.getHitpoints());
+//
+//                ArmorGridAPI grid = fighter.getArmorGrid();
+//                float sizeX = grid.getGrid().length;
+//                float sizeY = grid.getGrid()[0].length;
+//                for (int x = 0; x < sizeX; x++)
+//                {
+//                    for (int y = 0; y < sizeY; y++)
+//                    {
+//                        newFighter.getArmorGrid().setArmorValue(x, y, grid.getArmorValue(x, y));
+//                    }
+//                }
+//
+//                newFighter.syncWithArmorGridState();
+//                newFighter.syncWeaponDecalsWithArmorDamage();
+//
+//                if (resetTarget) Global.getCombatEngine().getPlayerShip().setShipTarget(newFighter);
+//
+//                Global.getCombatEngine().removeEntity(fighter);
+//
+//                fighter.addListener(new SotfCyberwarfareFighterHack(ship, newFighter));
+            }
+            Global.getSoundPlayer().playSound("system_recall_device", 1.25f, 1f, ship.getLocation(), ship.getVelocity());
+            Global.getSoundPlayer().playSound("disabled_large", 1.25f, 2f, target.getLocation(), target.getVelocity());
+        }
+
+        public ShipAPI findTarget(ShipAPI ship) {
+            float range = getHackRange();
+            Vector2f from = ship.getLocation();
+
+            Iterator<Object> iter = Global.getCombatEngine().getAllObjectGrid().getCheckIterator(from,
+                    range * 2f, range * 2f);
+            int owner = ship.getOwner();
+            ShipAPI best = null;
+            float minScore = -9999f;
+
+            while (iter.hasNext()) {
+                Object o = iter.next();
+                if (!(o instanceof ShipAPI)) continue;
+                ShipAPI other = (ShipAPI) o;
+                if (owner == other.getOwner()) continue;
+                if (Misc.getDistance(from, other.getLocation()) > range) continue;
+
+                ShipAPI otherShip = (ShipAPI) other;
+
+                if (!isValidTarget(ship, otherShip)) continue;
+
+                if (otherShip.getWing().isReturning(otherShip)) continue;
+                if (otherShip.getWing().getSourceShip() == null) continue;
+                if (otherShip.getWing().getWingOwner() == ship.getOwner()) continue;
+
+                // can't counter-hack (e.g if a Dustkeeper hacks a fighter wing, Fel can't hack it back)
+                // probably would work fine, but honestly I don't want the headache of allowing it
+                if (otherShip.getOwner() != otherShip.getOriginalOwner()) continue;
+
+                float radius = Misc.getTargetingRadius(from, other, false);
+                float score = range - (Misc.getDistance(from, other.getLocation()) - radius);
+
+                ShipAPI playerShip = Global.getCombatEngine().getPlayerShip();
+
+                score += otherShip.getMaxHitpoints();
+
+                // prioritise the ship's target
+                float shipTargetBonus = 1000f;
+                // if player ship, always shoot player target if not invalid
+                if (ship == playerShip) {
+                    shipTargetBonus = 99999f;
+                }
+                if (ship.getShipTarget() == otherShip) {
+                    score += shipTargetBonus;
+                }
+
+                if (score > minScore) {
+                    minScore = score;
+                    best = other;
+                }
+            }
+            return best;
+        }
+
+        public boolean isValidTarget(ShipAPI ship, ShipAPI target) {
+            boolean isValid = true;
+            if (!target.isAlive() ||
+                    target.getOwner() == ship.getOwner() ||
+                    !target.isFighter() || target.isDrone() ||
+                    target.isPhased() || target.getHullStyleId().contains("OMEGA") || target.getHullSpec().hasTag(Tags.MONSTER) || target.getWing() == null) {
                 isValid = false;
             }
             return isValid;
         }
     }
 
+    public static class SotfCyberwarfareFighterHack implements AdvanceableListener {
+        protected ShipAPI hacker;
+        protected ShipAPI fighter;
+        protected float timer = 0f;
+        protected float max = OVERRIDE_DURATION;
+
+        public SotfCyberwarfareFighterHack(ShipAPI hacker, ShipAPI fighter) {
+            this.hacker = hacker;
+            this.fighter = fighter;
+        }
+
+        public void advance(float amount) {
+            if (hacker == null) {
+                return;
+            }
+            timer += amount;
+            if (timer < max) {
+                fighter.setJitter(FIGHTER_HACK_KEY, HACK_COLOR, 0.5f, 3, 3f);
+            } else {
+                ShipAPI target = fighter.getShipTarget();
+                MissileAPI missile = (MissileAPI) Global.getCombatEngine().spawnProjectile(
+                        fighter, null, DRONE_TSEQUENCE_KEY,
+                        new Vector2f(fighter.getLocation()), fighter.getFacing(), new Vector2f(fighter.getVelocity()));
+                if (target == null) {
+                    target = findTarget(fighter, missile.getMaxRange());
+                }
+
+                if (target != null && missile.getAI() instanceof GuidedMissileAI) {
+                    GuidedMissileAI ai = (GuidedMissileAI) missile.getAI();
+                    ai.setTarget(target);
+                }
+                missile.setHitpoints(missile.getHitpoints() * fighter.getHullLevel());
+                missile.setDamageAmount(fighter.getMaxHitpoints() * TSEQ_DAMAGE);
+                missile.setEmpResistance(10000);
+
+                Global.getCombatEngine().addLayeredRenderingPlugin(new SotfDroneMissileScript(fighter, missile));
+            }
+        }
+
+        public ShipAPI findTarget(ShipAPI ship, float range) {
+            Vector2f from = ship.getLocation();
+
+            Iterator<Object> iter = Global.getCombatEngine().getAllObjectGrid().getCheckIterator(from,
+                    range * 2f, range * 2f);
+            int owner = ship.getOwner();
+            ShipAPI best = null;
+            float minScore = -9999f;
+
+            while (iter.hasNext()) {
+                Object o = iter.next();
+                if (!(o instanceof ShipAPI)) continue;
+                ShipAPI other = (ShipAPI) o;
+                if (owner == other.getOwner()) continue;
+                if (Misc.getDistance(from, other.getLocation()) > range) continue;
+
+                ShipAPI otherShip = (ShipAPI) other;
+
+                if (!otherShip.isAlive() ||
+                        otherShip.getOwner() == ship.getOwner() ||
+                        otherShip.isFighter()) continue;
+
+                float radius = Misc.getTargetingRadius(from, other, false);
+                float score = range - (Misc.getDistance(from, other.getLocation()) - radius);
+
+                if (score > minScore) {
+                    minScore = score;
+                    best = other;
+                }
+            }
+            return best;
+        }
+    }
+
+    public static class SotfDroneMissileScript extends BaseCombatLayeredRenderingPlugin {
+        protected ShipAPI drone;
+        protected MissileAPI missile;
+        protected boolean done;
+
+        public SotfDroneMissileScript(ShipAPI drone, MissileAPI missile) {
+            super();
+            this.drone = drone;
+            this.missile = missile;
+            missile.setNoFlameoutOnFizzling(true);
+        }
+
+        @Override
+        public void advance(float amount) {
+            super.advance(amount);
+
+            if (done) return;
+
+            CombatEngineAPI engine = Global.getCombatEngine();
+
+            missile.setEccmChanceOverride(1f);
+            missile.setOwner(drone.getOwner());
+
+            drone.getLocation().set(missile.getLocation());
+            drone.getVelocity().set(missile.getVelocity());
+            drone.setCollisionClass(CollisionClass.FIGHTER);
+            drone.setFacing(missile.getFacing());
+            drone.getEngineController().fadeToOtherColor(this, new Color(0,0,0,0), new Color(0,0,0,0), 1f, 1f);
+
+            float dist = Misc.getDistance(missile.getLocation(), missile.getStart());
+            float jitterFraction = dist / missile.getMaxRange();
+            jitterFraction = Math.max(jitterFraction, missile.getFlightTime() / missile.getMaxFlightTime());
+
+            missile.setSpriteAlphaOverride(0f);
+            drone.setJitter(FIGHTER_HACK_KEY, HACK_COLOR, 0.5f, 4, 6f);
+            //float jitterMax = 1f + 10f * jitterFraction;
+            //drone.setJitter(this, new Color(HACK_COLOR.getRed(), HACK_COLOR.getGreen(), HACK_COLOR.getBlue(),
+            //        (int)(25 + 50 * jitterFraction)), 1f, 10, 1f, jitterMax);
+
+            boolean droneDestroyed = drone.isHulk() || drone.getHitpoints() <= 0;
+            if (missile.isFizzling() || (missile.getHitpoints() <= 0 && !missile.didDamage()) || droneDestroyed) {
+                drone.getVelocity().set(0, 0);
+                missile.getVelocity().set(0, 0);
+
+                if (!droneDestroyed) {
+                    Vector2f damageFrom = new Vector2f(drone.getLocation());
+                    damageFrom = Misc.getPointWithinRadius(damageFrom, 20);
+                    engine.applyDamage(drone, damageFrom, 1000000f, DamageType.ENERGY, 0, true, false, drone, false);
+                }
+                missile.interruptContrail();
+                engine.removeEntity(drone);
+                engine.removeEntity(missile);
+
+                missile.explode();
+
+                done = true;
+                return;
+            }
+            if (missile.didDamage()) {
+                drone.getVelocity().set(0, 0);
+                missile.getVelocity().set(0, 0);
+
+                Vector2f damageFrom = new Vector2f(drone.getLocation());
+                damageFrom = Misc.getPointWithinRadius(damageFrom, 20);
+                engine.applyDamage(drone, damageFrom, 1000000f, DamageType.ENERGY, 0, true, false, drone, false);
+                missile.interruptContrail();
+                engine.removeEntity(drone);
+                engine.removeEntity(missile);
+                done = true;
+                return;
+            }
+        }
+
+        @Override
+        public boolean isExpired() {
+            return done;
+        }
+
+    }
 }

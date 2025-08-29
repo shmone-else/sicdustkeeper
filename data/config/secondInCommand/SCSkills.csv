@@ -6,7 +6,7 @@ dustkeeper_cyberwarfare_training,Cyberwarfare Training,graphics/secondInCommand/
 dustkeeper_cooperation,Human-Warmind Cooperation,graphics/secondInCommand/dustkeeper/cooperation.png,0,shmoneelse.sicdustkeeper.skills.dustkeeper.WarmindCooperation
 dustkeeper_network,Network Depth,graphics/secondInCommand/dustkeeper/network.png,1,shmoneelse.sicdustkeeper.skills.dustkeeper.NetworkDepth
 dustkeeper_optimization,Focused Optimization,graphics/secondInCommand/dustkeeper/optimization.png,1,shmoneelse.sicdustkeeper.skills.dustkeeper.FocusedOptimization
-dustkeeper_ew,Electronic Warfare,graphics/secondInCommand/dustkeeper/ew.png,1,shmoneelse.sicdustkeeper.skills.dustkeeper.ElectronicWarfare
+dustkeeper_ew,Jamming Stations,graphics/secondInCommand/dustkeeper/ew.png,1,shmoneelse.sicdustkeeper.skills.dustkeeper.JammingStations
 dustkeeper_wide,Drone Specialists,graphics/secondInCommand/dustkeeper/widerange.png,1.5,shmoneelse.sicdustkeeper.skills.dustkeeper.SpreadWings
 dustkeeper_deadly,On Steel Wings,graphics/secondInCommand/dustkeeper/deadly.png,1.5,shmoneelse.sicdustkeeper.skills.dustkeeper.RapidPursuit
 dustkeeper_escort,Escort Drones,graphics/secondInCommand/dustkeeper/escort.png,2.5,shmoneelse.sicdustkeeper.skills.dustkeeper.EscortDrones

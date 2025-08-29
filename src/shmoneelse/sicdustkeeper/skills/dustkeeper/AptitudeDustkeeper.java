@@ -2,6 +2,8 @@ package shmoneelse.sicdustkeeper.skills.dustkeeper;
 
 
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
+import com.fs.starfarer.api.ui.TooltipMakerAPI;
+import com.fs.starfarer.api.util.Misc;
 import second_in_command.SCData;
 import second_in_command.specs.SCAptitudeSection;
 import second_in_command.specs.SCBaseAptitudePlugin;
@@ -42,5 +44,12 @@ public class AptitudeDustkeeper extends SCBaseAptitudePlugin {
         if(Objects.equals(campaignFleetAPI.getFaction().getId(), "sotf_dustkeepers_burnouts")) return Float.MAX_VALUE;
         if(Objects.equals(campaignFleetAPI.getFaction().getId(), "sotf_dustkeepers_proxies")) return Float.MAX_VALUE;
         return 0f;
+    }
+
+    @Override
+    public void addCodexDescription(TooltipMakerAPI tooltip) {
+        tooltip.addPara("The Dustkeeper aptitude is added by the Second in Command: Dustkeeper mod. Its officer can be found at the Holdout Forgeship in the Mia's Star system." +
+                "The aptitude is designed to allow for a mixed fleet of automated and human ships. Save humanity by culling threats to their existence."
+                , 0f, Misc.getTextColor(), Misc.getHighlightColor(), "Dustkeeper", "Holdout Forgeship");
     }
 }
